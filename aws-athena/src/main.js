@@ -40,7 +40,18 @@ function getConfig(request) {
     .newTextInput()
     .setId('awsSecretAccessKey')
     .setName('AWS_SECRET_ACCESS_KEY');
-
+  
+  config
+    .newTextInput()
+    .setId('awsAssumeRole')
+    .setName('AWS_ASSUME_ROLE')
+    .setHelpText('(Optional) Name of the role to assume');
+  config
+    .newTextInput()
+    .setId('awsAssumeRoleAccount')
+    .setName('AWS_ASSUME_ROLE_ACCOUNT')
+    .setHelpText('(Optional) Set if the role to assume is on another account');
+  
   config
     .newTextInput()
     .setId('awsRegion')
@@ -122,6 +133,10 @@ function validateConfig(configParams) {
   if (!configParams.tableName) {
     throwUserError('Table Name is empty.');
   }
+  if (configParams.awsAssumeRoleAccount && !configParams.awsAssumeRole)
+  {
+    throwUserError('You want to specify AWS_ASSUME_ROLE_ACCOUNT to asume in the account "' + configParams.awsAssumeRoleAccount + '"');
+  }
   if (configParams.outputLocation.indexOf('s3://') !== 0) {
     throwUserError(
       'Query Output Location must in the format of s3://<bucket>/<directory>'
@@ -163,6 +178,6 @@ function getData(request) {
     var data = getDataFromAthena(request);
     return data;
   } catch (err) {
-    throwUserError(err.message);
+    throwUserError(err);
   }
 }
